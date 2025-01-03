@@ -11,7 +11,7 @@ class ChaiVariety(models.Model):
         ('EL', 'ELAICHI'),
     ]
     name = models.CharField(max_length=100)
-    image = models.ImageField(upload_to='chais/')
+    image = models.ImageField(upload_to='')
     createdAt = models.DateTimeField(default=timezone.now)
     type = models.CharField(max_length=2, choices=CHAI_TYPE_CHOICE)
 
