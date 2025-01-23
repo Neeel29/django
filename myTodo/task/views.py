@@ -1,16 +1,18 @@
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from .serializers import TaskSerializer
 from .models import *
 
 @api_view(['GET', 'POST'])
-def task_list(request):
+@permission_classes([IsAuthenticated])
+def task_list_or_create(request):
     # List all tasks or create a new task
     if request.method == 'GET':
         if request.GET.get('id'):
             tasks = Task.objects.filter(id=request.GET.get('id'))
-        else: tasks = Task.objects.all()
+        else: tasks = Task.objects.all(user=request.user)
         serializer = TaskSerializer(tasks, many=True)
         return Response(serializer.data)
     elif request.method == 'POST':
@@ -21,10 +23,11 @@ def task_list(request):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
 def task_action(request, pk):
     # Update or delete a task
     try:
-        task = Task.objects.get(pk=pk)
+        task = Task.objects.get(pk=pk, user=request.user)
     except Task.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
     if request.method == 'PUT':
